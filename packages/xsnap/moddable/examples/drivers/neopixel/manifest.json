@@ -1,0 +1,30 @@
+{
+	"include": [
+		"$(MODDABLE)/examples/manifest_base.json"
+	],
+	"modules": {
+		"*": [
+			"$(MODULES)/drivers/neopixel/*",
+			"./main"
+		]
+	},
+	"config": {
+		"rainbow": false
+	},
+	"preload": "neopixel",
+	"platforms": {
+		"esp32": {
+			"modules": {
+				"*": "$(MODULES)/drivers/neopixel/esp32/*"
+			}
+		},
+		"pico": {
+			"modules": {
+				"*": "$(MODULES)/drivers/neopixel/pico/*"
+			}
+		},
+		"...": {
+			"error": "unsupported platform"
+		}
+	}
+}
