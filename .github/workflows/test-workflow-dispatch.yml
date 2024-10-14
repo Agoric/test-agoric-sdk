@@ -18,6 +18,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Create new branch
+        run: |
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          git checkout -b test-build-release-$TIMESTAMP
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18.x'
+
+      - name: Install dependencies
+        run: yarn install --force
+
+      - name: Update workflow file
+        run: |
+          sed -i '1s/.*/name: Remote Trigger Workflow 1/' .github/workflows/test-workflow-dispatch.yml
+
+      - name: Commit and push changes
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .github/workflows/test-workflow-dispatch.yml
+          git commit -m "Update workflow name and add timestamp"
+          git push origin HEAD
+
       - name: Run triggered action
         run: |
           echo "Workflow triggered remotely!"
