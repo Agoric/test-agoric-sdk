@@ -31,9 +31,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --force
 
-      - name: Update workflow file
+      - name: Update README file
         run: |
-          sed -i '1s/.*/name: Remote Trigger Workflow 1/' .github/workflows/test-workflow-dispatch.yml
+          echo "1$(cat README.md)" > README.md
 
       - name: Commit and push changes
         run: |
