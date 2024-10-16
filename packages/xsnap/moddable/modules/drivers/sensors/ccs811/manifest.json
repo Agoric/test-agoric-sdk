@@ -1,9 +1,0 @@
-{
-	"modules": {
-		"embedded:sensor/CarbonDioxideGasSensor-VOCSensor/CCS811": "$(MODDABLE)/modules/drivers/sensors/ccs811/ccs811"
-	},
-	"preload": [
-		"embedded:sensor/CarbonDioxideGasSensor-VOCSensor/CCS811"
-	]
-}
-

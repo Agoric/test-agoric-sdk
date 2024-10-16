@@ -1,9 +1,0 @@
-{
-	"include": [
-		"$(MODDABLE)/modules/crypt/tls_419.json"
-	],
-	"modules": {
-		"*": "./tlssocket"
-	},
-	"preload": "tlssocket"
-}

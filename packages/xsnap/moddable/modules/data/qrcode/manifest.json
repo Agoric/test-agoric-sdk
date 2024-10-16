@@ -1,9 +1,0 @@
-{
-	"modules": {
-		"*": [
-			"./qrcode",
-			"./qrcodegen"
-		]
-	},
-	"preload": "qrcode"
-}

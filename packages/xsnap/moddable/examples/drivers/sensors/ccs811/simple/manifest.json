@@ -1,9 +1,0 @@
-{
-	"include": [
-		"$(MODDABLE)/modules/io/manifest.json",
-		"$(MODDABLE)/modules/drivers/sensors/ccs811/manifest.json"
-	],
-	"modules": {
-		"*": "./main"
-	}
-}

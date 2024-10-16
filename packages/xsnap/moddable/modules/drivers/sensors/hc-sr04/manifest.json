@@ -1,8 +1,0 @@
-{
-	"modules": {
-		"embedded:sensor/Proximity/HC-SR04": "$(MODDABLE)/modules/drivers/sensors/hc-sr04/hc-sr04"
-	},
-	"preload": [
-		"embedded:sensor/Proximity/HC-SR04"
-	]
-}

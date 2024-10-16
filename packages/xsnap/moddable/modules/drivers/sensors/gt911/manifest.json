@@ -1,8 +1,0 @@
-{
-	"modules": {
-		"embedded:sensor/Touch/GT911": "./gt911"
-	},
-	"preload": [
-		"embedded:sensor/Touch/GT911"
-	]
-}

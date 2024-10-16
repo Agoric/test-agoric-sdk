@@ -1,8 +1,0 @@
-{
-	"modules": {
-		"data/wavreader": "./wavreader"
-	},
-	"preload": [
-		"data/wavreader"
-	]
-}

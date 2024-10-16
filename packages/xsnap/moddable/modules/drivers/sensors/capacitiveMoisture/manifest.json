@@ -1,9 +1,0 @@
-{
-	"modules": {
-		"embedded:sensor/SoilMoistureSensor/Capacitive": "$(MODDABLE)/modules/drivers/sensors/capacitiveMoisture/capacitiveMoisture"
-	},
-	"preload": [
-		"embedded:sensor/SoilMoistureSensor/Capacitive"
-	]
-}
-

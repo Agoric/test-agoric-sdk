@@ -1,9 +1,0 @@
-{
-	"include": [
-		"$(MODULES)/pins/digital/monitor/manifest.json"
-	],
-	"modules": {
-		"button": "$(MODULES)/drivers/button/*"
-	},
-	"preload": "button"
-}

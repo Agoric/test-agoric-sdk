@@ -1,6 +1,0 @@
-{
-	"modules": {
-		"*": "$(MODULES)/base/modules/*"
-	},
-	"preload": "modules"
-}

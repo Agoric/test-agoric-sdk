@@ -1,8 +1,0 @@
-{
-	"modules": {
-		"text/decoder": "./textdecoder"
-	},
-	"preload": [
-		"text/decoder"
-	]
-}
