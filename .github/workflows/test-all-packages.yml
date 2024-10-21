@@ -111,12 +111,6 @@ jobs:
       # master merge check
       - name: yarn lint rest of packages/*
         run: ./scripts/lint-with-types.sh rest
-      - name: Lint a3p-integration
-        run: yarn install && yarn lint && yarn doctor
-        working-directory: a3p-integration
-      - name: build A3P submissions
-        run: yarn run build:submissions
-        working-directory: a3p-integration
 
   ##################
   # Fast-running tests run as a group:
