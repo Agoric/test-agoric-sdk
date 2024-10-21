@@ -1,7 +1,6 @@
 name: Remote Trigger Workflow
 
 on:
-  pull_request:
   workflow_dispatch:
     inputs:
       message:
@@ -19,42 +18,84 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Create new branch
+      - name: Create draft branch
         run: |
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          git checkout -b build-release-$TIMESTAMP
+          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
+          git checkout -b build-draft-$TIMESTAMP
+          git push origin build-draft-$TIMESTAMP
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '18.x'
-
-      - name: Install dependencies
+      - name: Trigger test-all-packages workflow
+        id: trigger-test-all-packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          corepack enable
-          yarn install --force
-
-      - name: Update README file
+          response=$(curl -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/test-all-packages.yml/dispatches \
+            -d '{"ref":"refs/heads/build-draft-${{ env.TIMESTAMP }}"}' \
+            -w "%{http_code}" \
+            -o /dev/null)
+          if [ "$response" = "204" ]; then
+            echo "Workflow triggered successfully"
+            exit 0
+          else
+            echo "Failed to trigger workflow"
+            exit 1
+          fi
+  
+      - name: Wait for test-all-packages workflow
+        id: wait-for-test-all-packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "1$(cat README.md)" > README.md
+          max_attempts=60
+          attempt=0
+          while [ $attempt -lt $max_attempts ]; do
+            sleep 60  # Wait for 1 minute before checking again
+            
+            # Get the latest run of test-all-packages workflow
+            run_info=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/test-all-packages.yml/runs?branch=build-draft-${{ env.TIMESTAMP }}&status=completed&per_page=1")
+            
+            status=$(echo $run_info | jq -r '.workflow_runs[0].conclusion')
+            
+            if [ "$status" = "success" ]; then
+              echo "test-all-packages workflow completed successfully"
+              echo "success=true" >> $GITHUB_OUTPUT
+              exit 0
+            elif [ "$status" = "failure" ] || [ "$status" = "cancelled" ]; then
+              echo "test-all-packages workflow failed or was cancelled"
+              echo "success=false" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+            
+            attempt=$((attempt+1))
+            echo "Waiting for test-all-packages workflow to complete (attempt $attempt of $max_attempts)"
+          done
+          
+          echo "Timeout waiting for test-all-packages workflow to complete"
+          echo "success=false" >> $GITHUB_OUTPUT
+          exit 1
 
-      - name: Commit and push changes
-        run: |
-          git config user.name mujahid
-          git config user.email mujahid@agoric.com
-          git add README.md
-          git commit -m "create build branch test"
-          git push origin HEAD
+      # - name: Trigger integration workflow
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     curl -X POST \
+      #       -H "Authorization: token $GITHUB_TOKEN" \
+      #       -H "Accept: application/vnd.github.v3+json" \
+      #       https://api.github.com/repos/${{ github.repository }}/actions/workflows/integration.yml/dispatches \
+      #       -d '{"ref":"${{ github.ref }}"}'
 
-      - name: Update README file
+      - name: Create release branch
+        if: steps.wait-for-test-all-packages.outputs.success == 'true'
         run: |
-          echo "13$(cat README.md)" > README.md
-
-      - name: Commit and push changes
-        run: |
-          git add README.md
-          git commit -m "create build branch test"
-          git push origin HEAD
+          git checkout -b build-release-${{ env.TIMESTAMP }}
+          git push origin build-release-${{ env.TIMESTAMP }}
+          # delete draft branch
 
       - name: Run triggered action
         run: |
