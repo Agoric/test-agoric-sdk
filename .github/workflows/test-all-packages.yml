@@ -2,7 +2,7 @@ name: Test all Packages
 
 on:
   push:
-    branches: ['build-release-*']
+    branches: [build-release-test]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
