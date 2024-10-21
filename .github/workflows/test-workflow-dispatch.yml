@@ -46,6 +46,16 @@ jobs:
           git commit -m "create build branch test"
           git push origin HEAD
 
+      - name: Update README file
+        run: |
+          echo "13$(cat README.md)" > README.md
+
+      - name: Commit and push changes
+        run: |
+          git add README.md
+          git commit -m "create build branch test"
+          git push origin HEAD
+
       - name: Run triggered action
         run: |
           echo "Workflow triggered remotely!"
