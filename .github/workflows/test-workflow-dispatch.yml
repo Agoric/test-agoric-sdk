@@ -40,8 +40,8 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          git config user.name mujahid
+          git config user.email mujahid@agoric.com
           git add README.md
           git commit -m "create build branch test"
           git push origin HEAD
