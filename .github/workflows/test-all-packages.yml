@@ -3,6 +3,7 @@ name: Test all Packages
 on:
   workflow_dispatch:
   push:
+    branches: ['build-release-*']
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
