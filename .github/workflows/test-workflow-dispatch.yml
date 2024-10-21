@@ -22,7 +22,7 @@ jobs:
       - name: Create new branch
         run: |
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          git checkout -b build-release-test
+          git checkout -b build-release-$TIMESTAMP
 
       - name: Setup Node.js
         uses: actions/setup-node@v2
