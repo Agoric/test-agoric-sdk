@@ -6,26 +6,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
-      - 'release-*'
-      - 'dev-*'
-      - beta
-    tags:
-      - '@agoric/sdk@*'
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - converted_to_draft
-      - ready_for_review
-      - labeled
-      - unlabeled
-      - auto_merge_enabled
-      - auto_merge_disabled
-  merge_group:
-  schedule:
-    - cron: '17 6 * * *'
+      - 'build-*'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -306,12 +287,6 @@ jobs:
           from: ${{ secrets.NOTIFY_EMAIL_FROM }}
           to: ${{ secrets.NOTIFY_EMAIL_TO }}
           password: ${{ secrets.NOTIFY_EMAIL_PASSWORD }}
-      - uses: ./.github/actions/post-test
-        if: (success() || failure())
-        continue-on-error: true
-        timeout-minutes: 4
-        with:
-          datadog-token: ${{ secrets.DATADOG_API_KEY }}
 
   test-multichain-e2e:
     needs: pre_check
