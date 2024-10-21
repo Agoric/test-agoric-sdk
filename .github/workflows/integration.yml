@@ -5,14 +5,14 @@ on:
   # packages/deployment/scripts/start-github-integration-test.sh <BRANCH-OR-TAG>
   workflow_dispatch:
   push:
-    branches:
-      - 'build-*'
+    branches: ['build-release-*']
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  if: github.ref_type == 'branch' && startsWith(github.ref, 'refs/heads/build-release-')
   pre_check:
     uses: ./.github/workflows/pre-check-integration.yml
 
