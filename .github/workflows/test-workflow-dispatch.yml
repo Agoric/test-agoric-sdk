@@ -44,7 +44,7 @@ jobs:
             echo "Failed to trigger workflow"
             exit 1
           fi
-  
+
       - name: Wait for test-all-packages workflow
         id: wait-for-test-all-packages
         env:
@@ -75,7 +75,7 @@ jobs:
             attempt=$((attempt+1))
             echo "Waiting for test-all-packages workflow to complete (attempt $attempt of $max_attempts)"
           done
-          
+
           echo "Timeout waiting for test-all-packages workflow to complete"
           echo "success=false" >> $GITHUB_OUTPUT
           exit 1
