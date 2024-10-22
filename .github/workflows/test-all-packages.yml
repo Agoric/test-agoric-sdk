@@ -10,7 +10,7 @@ on:
       run_id:
         required: false
         type: string
-  
+
 concurrency:
   group: ${{ github.workflow }}-${{ inputs.run_id || github.ref }}
   cancel-in-progress: ${{ inputs.run_id == '' }}

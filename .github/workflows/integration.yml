@@ -20,7 +20,6 @@ concurrency:
   cancel-in-progress: ${{ inputs.run_id == '' }}
 
 jobs:
-
   # This job is meant to emulate what developers working with the Agoric platform will experience
   # It should be kept in sync with https://agoric.com/documentation/getting-started/
   getting-started:
