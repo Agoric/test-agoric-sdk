@@ -7,10 +7,13 @@ on:
       ref:
         required: false
         type: string
-
+      run_id:
+        required: false
+        type: string
+  
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ inputs.run_id || github.ref }}
+  cancel-in-progress: ${{ inputs.run_id == '' }}
 
 env:
   AGORIC_AVA_USE_TAP: true

@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       timestamp: ${{ steps.set-timestamp.outputs.timestamp }}
+      run_id: ${{ steps.set-run-id.outputs.run_id }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -29,6 +30,11 @@ jobs:
         run: |
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
           echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
+
+      - name: Set unique run ID
+        id: set-run-id
+        run: |
+          echo "run_id=${{ github.run_id }}-${{ github.run_attempt }}" >> $GITHUB_OUTPUT
 
       - name: Create draft branch
         run: |
@@ -40,12 +46,14 @@ jobs:
     uses: ./.github/workflows/test-all-packages.yml
     with:
       ref: build-draft-${{ needs.prepare.outputs.timestamp }}
+      run_id: ${{ needs.prepare.outputs.run_id }}
 
   integration:
     needs: prepare
     uses: ./.github/workflows/integration.yml
     with:
       ref: build-draft-${{ needs.prepare.outputs.timestamp }}
+      run_id: ${{ needs.prepare.outputs.run_id }}
 
   create-release-branch:
     needs: [prepare, test-all-packages, integration]
