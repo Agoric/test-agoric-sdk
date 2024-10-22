@@ -12,15 +12,10 @@ on:
         required: false
 
 jobs:
-  test-nightly-build:
+  prepare:
     runs-on: ubuntu-latest
     outputs:
       timestamp: ${{ steps.set-timestamp.outputs.timestamp }}
-      matrix_success: ${{ steps.check-matrix-success.outputs.success }}
-    strategy:
-      matrix:
-        workflow: [test-all-packages]
-      fail-fast: false
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -36,89 +31,21 @@ jobs:
           git checkout -b build-draft-${{ steps.set-timestamp.outputs.timestamp }}
           git push origin build-draft-${{ steps.set-timestamp.outputs.timestamp }}
 
-      - name: Trigger ${{ matrix.workflow }} workflow
-        id: trigger-workflow
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          response=$(curl -X POST \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/actions/workflows/${{ matrix.workflow }}.yml/dispatches \
-            -d '{"ref":"refs/heads/build-draft-${{ env.TIMESTAMP }}"}' \
-            -w "%{http_code}" \
-            -o /dev/null)
-          if [ "$response" = "204" ]; then
-            echo "Workflow ${{ matrix.workflow }} triggered successfully"
-            exit 0
-          else
-            echo "Failed to trigger workflow ${{ matrix.workflow }}"
-            exit 1
-          fi
-
-      - name: Wait for ${{ matrix.workflow }} workflow
-        id: wait-for-workflow
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          max_attempts=60
-          attempt=0
-          while [ $attempt -lt $max_attempts ]; do
-            sleep 60  # Wait for 1 minute before checking again
-            
-            # Get the latest run of the workflow
-            run_info=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/${{ matrix.workflow }}.yml/runs?branch=build-draft-${{ env.TIMESTAMP }}&status=completed&per_page=1")
-            
-            status=$(echo $run_info | jq -r '.workflow_runs[0].conclusion')
-            
-            if [ "$status" = "success" ]; then
-              echo "${{ matrix.workflow }} workflow completed successfully"
-              echo "success=true" >> $GITHUB_OUTPUT
-              exit 0
-            elif [ "$status" = "failure" ] || [ "$status" = "cancelled" ]; then
-              echo "${{ matrix.workflow }} workflow failed or was cancelled"
-              echo "success=false" >> $GITHUB_OUTPUT
-              exit 1
-            fi
-            
-            attempt=$((attempt+1))
-            echo "Waiting for ${{ matrix.workflow }} workflow to complete (attempt $attempt of $max_attempts)"
-          done
-
-          echo "Timeout waiting for ${{ matrix.workflow }} workflow to complete"
-          echo "success=false" >> $GITHUB_OUTPUT
-          exit 1
-
-  
-      - name: Check matrix success
-        id: check-matrix-success
-        if: always()
-        run: |
-          if [[ "${{ steps.wait-for-workflow.outputs.success }}" != "true" ]]; then
-            echo "success=false" >> $GITHUB_OUTPUT
-          else
-            echo "success=true" >> $GITHUB_OUTPUT
-          fi
-
-  check-matrix-results:
-    needs: test-nightly-build
+  test:
+    needs: prepare
     runs-on: ubuntu-latest
-    if: always()
+    strategy:
+      matrix:
+        job: [test-all-packages, integration]
     steps:
-      - name: Check if all matrix jobs succeeded
-        run: |
-          if [[ "${{ needs.test-nightly-build.outputs.matrix_success }}" != "true" ]]; then
-            echo "One or more matrix jobs failed"
-            exit 1
-          else
-            echo "All matrix jobs succeeded"
-          fi
+      - name: Run ${{ matrix.job }}
+        uses: ./.github/workflows/${{ matrix.job }}.yml
+        with:
+          ref: build-draft-${{ needs.prepare.outputs.timestamp }}
 
   create-release-branch:
-    needs: [test-nightly-build, check-matrix-results]
-    if: ${{ !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+    needs: [prepare, test]
+    if: success()
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -126,10 +53,9 @@ jobs:
 
       - name: Create release branch
         run: |
-          git checkout -b build-release-${{ needs.test-nightly-build.outputs.timestamp }}
-          git push origin build-release-${{ needs.test-nightly-build.outputs.timestamp }}
+          git checkout -b build-release-${{ needs.prepare.outputs.timestamp }}
+          git push origin build-release-${{ needs.prepare.outputs.timestamp }}
 
       - name: Delete draft branch
         run: |
-          git push origin --delete build-draft-${{ needs.test-nightly-build.outputs.timestamp }}
-
+          git push origin --delete build-draft-${{ needs.prepare.outputs.timestamp }}
