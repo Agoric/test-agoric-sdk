@@ -31,20 +31,20 @@ jobs:
           git checkout -b build-draft-${{ steps.set-timestamp.outputs.timestamp }}
           git push origin build-draft-${{ steps.set-timestamp.outputs.timestamp }}
 
-  test:
+  test-all-packages:
     needs: prepare
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        job: [test-all-packages, integration]
-    steps:
-      - name: Run ${{ matrix.job }}
-        uses: ./.github/workflows/${{ matrix.job }}.yml
-        with:
-          ref: build-draft-${{ needs.prepare.outputs.timestamp }}
+    uses: ./.github/workflows/test-all-packages.yml
+    with:
+      ref: build-draft-${{ needs.prepare.outputs.timestamp }}
+        
+  integration:
+    needs: prepare
+    uses: ./.github/workflows/integration.yml
+    with:
+      ref: build-draft-${{ needs.prepare.outputs.timestamp }}
 
   create-release-branch:
-    needs: [prepare, test]
+    needs: [prepare, test-all-packages, integration]
     if: success()
     runs-on: ubuntu-latest
     steps:
