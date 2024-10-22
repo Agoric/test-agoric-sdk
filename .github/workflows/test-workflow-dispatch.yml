@@ -12,7 +12,7 @@ on:
         required: false
 
 concurrency:
-  group: remote-trigger-${{ github.run_id }}
+  group: remote-trigger-${{ github.workflow }}-${{ github.ref }}-${{ github.run_id }}
   cancel-in-progress: false
 
 jobs:
