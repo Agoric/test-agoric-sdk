@@ -10,7 +10,7 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name != 'workflow_call' }}
 env:
   AGORIC_AVA_USE_TAP: true
   TEST_COLLECT: 'tee -a _testoutput.txt'

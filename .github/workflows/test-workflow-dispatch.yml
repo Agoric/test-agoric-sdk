@@ -12,10 +12,6 @@ on:
         required: false
 
 
-concurrency:
-  group: remote-trigger-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
   prepare:
     runs-on: ubuntu-latest
