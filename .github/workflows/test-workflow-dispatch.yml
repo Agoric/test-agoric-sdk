@@ -36,7 +36,7 @@ jobs:
     uses: ./.github/workflows/test-all-packages.yml
     with:
       ref: build-draft-${{ needs.prepare.outputs.timestamp }}
-        
+
   integration:
     needs: prepare
     uses: ./.github/workflows/integration.yml
