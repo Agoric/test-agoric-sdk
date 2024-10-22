@@ -9,15 +9,15 @@ on:
       ref:
         required: false
         type: string
-      run_id:
+      timestamp:
         required: false
         type: string
   push:
     branches: ['build-release-*']
 
 concurrency:
-  group: ${{ github.workflow }}-${{ inputs.run_id || github.ref }}
-  cancel-in-progress: ${{ inputs.run_id == '' }}
+  group: ${{ github.workflow }}-${{ inputs.ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # This job is meant to emulate what developers working with the Agoric platform will experience

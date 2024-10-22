@@ -7,13 +7,13 @@ on:
       ref:
         required: false
         type: string
-      run_id:
+      timestamp:
         required: false
         type: string
 
 concurrency:
-  group: ${{ github.workflow }}-${{ inputs.run_id || github.ref }}
-  cancel-in-progress: ${{ inputs.run_id == '' }}
+  group: ${{ github.workflow }}-${{ inputs.timestamp || github.ref }}
+  cancel-in-progress: true
 
 env:
   AGORIC_AVA_USE_TAP: true
