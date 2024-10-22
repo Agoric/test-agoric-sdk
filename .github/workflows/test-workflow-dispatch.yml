@@ -11,6 +11,9 @@ on:
         description: 'Additional data'
         required: false
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   prepare:
@@ -37,12 +40,18 @@ jobs:
     uses: ./.github/workflows/test-all-packages.yml
     with:
       ref: build-draft-${{ needs.prepare.outputs.timestamp }}
+    concurrency:
+      group: test-all-packages-${{ github.run_id }}
+      cancel-in-progress: false
 
   integration:
     needs: prepare
     uses: ./.github/workflows/integration.yml
     with:
       ref: build-draft-${{ needs.prepare.outputs.timestamp }}
+    concurrency:
+      group: integration-${{ github.run_id }}
+      cancel-in-progress: false
 
   create-release-branch:
     needs: [prepare, test-all-packages, integration]
