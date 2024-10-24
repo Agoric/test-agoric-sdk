@@ -7,12 +7,12 @@ on:
       ref:
         required: false
         type: string
-      timestamp:
+      id:
         required: false
         type: string
 
 concurrency:
-  group: ${{ github.workflow }}-${{ inputs.timestamp || github.ref }}
+  group: ${{ github.workflow }}-${{ inputs.id || github.ref }}
   cancel-in-progress: true
 
 env:
@@ -47,7 +47,7 @@ jobs:
     steps:
       - name: concurrency group name
         run: |
-          echo ${{ github.workflow }}-${{ inputs.timestamp || github.ref }}
+          echo ${{ github.workflow }}-${{ inputs.id || github.ref }}
 
       - uses: actions/checkout@v4
       - name: Install graphviz

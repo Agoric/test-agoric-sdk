@@ -9,14 +9,14 @@ on:
       ref:
         required: false
         type: string
-      timestamp:
+      id:
         required: false
         type: string
   push:
     branches: ['build-release-*']
 
 concurrency:
-  group: ${{ github.workflow }}-${{ inputs.ref || github.ref }}
+  group: ${{ github.workflow }}-${{ inputs.id || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -32,7 +32,7 @@ jobs:
     steps:
       - name: concurrency group name
         run: |
-          echo ${{ github.workflow }}-${{ inputs.timestamp || github.ref }}
+          echo ${{ github.workflow }}-${{ inputs.id || github.ref }}
 
       - uses: actions/checkout@v4
         with:

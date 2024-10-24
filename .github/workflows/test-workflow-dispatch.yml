@@ -36,14 +36,14 @@ jobs:
     uses: ./.github/workflows/test-all-packages.yml
     with:
       ref: build-draft-${{ needs.prepare.outputs.timestamp }}
-      timestamp: ${{ format(github.event.repository.updated_at, 'yyyyMMddHHmmss') }}
+      id: 'test-all-packages'
 
   integration:
     needs: prepare
     uses: ./.github/workflows/integration.yml
     with:
       ref: build-draft-${{ needs.prepare.outputs.timestamp }}
-      timestamp: ${{ format(github.event.repository.updated_at, 'yyyyMMddHHmmss') }}
+      id: 'integration'
 
   create-release-branch:
     needs: [prepare, test-all-packages, integration]
