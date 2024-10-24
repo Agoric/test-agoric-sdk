@@ -45,6 +45,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: concurrency group name
+        run: |
+          echo ${{ github.workflow }}-${{ inputs.timestamp || github.ref }}
+
       - uses: actions/checkout@v4
       - name: Install graphviz
         run: sudo apt install -y graphviz

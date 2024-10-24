@@ -30,6 +30,10 @@ jobs:
         cli: [link-cli/yarn, registry/yarn, registry/npm, registry/npx]
     timeout-minutes: 40
     steps:
+      - name: concurrency group name
+        run: |
+          echo ${{ github.workflow }}-${{ inputs.timestamp || github.ref }}
+
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
